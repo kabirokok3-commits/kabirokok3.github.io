@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timing Game</title>
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#5DADE2;
+    font-family:Tahoma,sans-serif;
+    overflow:hidden;
+}
+
+.window{
+    width:500px;
+    background:silver;
+    border:3px solid #fff;
+    border-right-color:#444;
+    border-bottom-color:#444;
+    box-shadow:8px 8px 0px rgba(0,0,0,0.3);
+}
+
+.titlebar{
+    background:linear-gradient(to right,#000080,#1084d0);
+    color:white;
+    padding:8px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.content{
+    padding:30px;
+    text-align:center;
+}
+
+h1{
+    margin-top:0;
+    font-size:42px;
+    color:#111;
+    text-shadow:2px 2px #fff;
+}
+
+p{
+    font-size:18px;
+    color:#222;
+}
+
+.number{
+    font-size:120px;
+    font-weight:bold;
+    color:#00aa00;
+    margin:20px 0;
+    text-shadow:3px 3px #fff;
+}
+
+button{
+    font-family:Tahoma,sans-serif;
+    font-size:20px;
+    padding:10px 30px;
+    background:silver;
+    border:3px solid #fff;
+    border-right-color:#444;
+    border-bottom-color:#444;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+button:active{
+    border:3px solid #444;
+    border-right-color:#fff;
+    border-bottom-color:#fff;
+}
+
+.result{
+    margin-top:25px;
+    font-size:24px;
+    line-height:1.8;
+    color:#111;
+}
+
+.hidden{
+    display:none;
+}
+
+body.streak5{
+    animation:
+        glow 1s infinite alternate;
+}
+
+body.streak10{
+    animation:
+        glow 0.5s infinite alternate,
+        rainbow 2s infinite linear;
+}
+
+body.streak15{
+    animation:
+        glow 0.3s infinite alternate,
+        rainbow 1s infinite linear,
+        shake 0.1s infinite;
+}
+
+@keyframes glow{
+
+    from{
+        filter:brightness(1);
+    }
+
+    to{
+        filter:brightness(1.4);
+    }
+}
+
+@keyframes rainbow{
+
+    0%{
+        filter:hue-rotate(0deg);
+    }
+
+    100%{
+        filter:hue-rotate(360deg);
+    }
+}
+
+@keyframes shake{
+
+    0%{
+        transform:translate(0px,0px);
+    }
+
+    25%{
+        transform:translate(3px,-3px);
+    }
+
+    50%{
+        transform:translate(-3px,3px);
+    }
+
+    75%{
+        transform:translate(3px,3px);
+    }
+
+    100%{
+        transform:translate(-3px,-3px);
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="window">
+
+    <div class="titlebar">
+        TimingGame.exe
+    </div>
+
+    <div class="content">
+
+        <h1>Timing Game</h1>
+
+        <p>
+            Press SPACE when you think the hidden timer
+            reaches the number below.
+        </p>
+
+        <div class="number" id="target">?</div>
+
+        <button id="startBtn" onclick="startGame()">
+            Start
+        </button>
+
+        <button id="restartBtn" class="hidden" onclick="restartGame()">
+            Restart
+        </button>
+
+        <div class="result" id="result"></div>
+
+        <div class="result" id="streak">
+            Streak: 0
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let targetNumber = 0;
+let startTime = 0;
+let running = false;
+let streak = 0;
+
+function startGame(){
+
+    targetNumber = Math.floor(Math.random() * 10) + 1;
+
+    document.getElementById("target").textContent =
+        targetNumber;
+
+    document.getElementById("result").innerHTML =
+        "Game started. Press SPACE.";
+
+    document.getElementById("startBtn")
+        .classList.add("hidden");
+
+    document.getElementById("restartBtn")
+        .classList.add("hidden");
+
+    startTime = performance.now();
+
+    running = true;
+}
+
+document.addEventListener("keydown", function(event){
+
+    if(event.code === "Space" && running){
+
+        running = false;
+
+        let elapsed =
+            (performance.now() - startTime) / 1000;
+
+        let difference =
+            Math.abs(targetNumber - elapsed);
+
+        if(difference < 1){
+
+            streak++;
+
+        }else{
+
+            streak = 0;
+
+            document.body.classList.remove("streak5");
+            document.body.classList.remove("streak10");
+            document.body.classList.remove("streak15");
+        }
+
+        document.getElementById("result").innerHTML = `
+            Target Number: <b>${targetNumber}</b><br>
+            You Pressed At: <b>${elapsed.toFixed(3)}</b> sec<br>
+            Difference: <b>${difference.toFixed(3)}</b> sec
+        `;
+
+        document.getElementById("streak").innerHTML =
+            "Streak: " + streak;
+
+        if(streak >= 5){
+            document.body.classList.add("streak5");
+        }
+
+        if(streak >= 10){
+            document.body.classList.add("streak10");
+        }
+
+        if(streak >= 15){
+            document.body.classList.add("streak15");
+        }
+
+        document.getElementById("restartBtn")
+            .classList.remove("hidden");
+    }
+
+});
+
+function restartGame(){
+
+    document.getElementById("target").textContent = "?";
+
+    document.getElementById("result").innerHTML = "";
+
+    document.getElementById("startBtn")
+        .classList.remove("hidden");
+
+    document.getElementById("restartBtn")
+        .classList.add("hidden");
+}
+
+</script>
+
+</body>
+</html>
